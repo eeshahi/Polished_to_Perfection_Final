@@ -21,7 +21,7 @@
         "client_email": "ava.martinez@email.com",
         "status": "Scheduled"
     },
-      {
+    {
         "id": 3,
         "service": "Classic Pedicure",
         "price": 30,
@@ -54,6 +54,19 @@
         "client_email": "amanda@gmail.com",
         "status": "Scheduled",
         "created_at": "2026-04-04 15:50:36.646693",
+        "canceled_at": ""
+    },
+    {
+        "id": 6,
+        "service": "Gel Manicure",
+        "price": 35,
+        "date": "2026-05-15",
+        "time": "3:00 PM",
+        "employee": "Eesha Shahi",
+        "client": "Mari",
+        "client_email": "mariyyyy@gmail.com",
+        "status": "Scheduled",
+        "created_at": "2026-05-10 22:31:51.050692",
         "canceled_at": ""
     }
 ]

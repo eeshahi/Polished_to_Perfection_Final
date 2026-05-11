@@ -3,7 +3,7 @@
         "id": 1,
         "item_name": "Gel Polish",
         "category": "Polish",
-        "quantity": 12,
+        "quantity": 11,
         "low_stock_limit": 5,
         "supplier": "SalonPro Supplies"
     },
@@ -19,7 +19,7 @@
         "id": 3,
         "item_name": "Cuticle Oil",
         "category": "Nail Care",
-        "quantity": 14,
+        "quantity": 13,
         "low_stock_limit": 5,
         "supplier": "Nail Essentials Co."
     },
@@ -35,7 +35,7 @@
         "id": 5,
         "item_name": "Cotton Pads",
         "category": "Supplies",
-        "quantity": 28,
+        "quantity": 27,
         "low_stock_limit": 12,
         "supplier": "Beauty Warehouse"
     }

@@ -38,5 +38,15 @@
         "registered_at": "2026-04-05 22:15:47.531422",
         "reward_points": 0,
         "reward_history": []
+    },
+    {
+        "id": "6c8e0f6c-2db3-41ec-9eaa-a27649f38b94",
+        "email": "mariyyyy@gmail.com",
+        "full_name": "Mari",
+        "password": "wodkwodkwodkwodkow",
+        "role": "Customer",
+        "registered_at": "2026-05-10 22:31:12.908149",
+        "reward_points": 0,
+        "reward_history": []
     }
 ]
