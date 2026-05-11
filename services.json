@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Basic Manicure",
+        "price": 20
+    },
+    {
+        "name": "Gel Manicure",
+        "price": 35
+    },
+    {
+        "name": "Classic Pedicure",
+        "price": 30
+    },
+    {
+        "name": "Acrylic Full Set",
+        "price": 50
+    },
+    {
+        "name": "Nail Art Design",
+        "price": 15
+    }
+]

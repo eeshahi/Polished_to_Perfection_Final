@@ -11,113 +11,124 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# -----------------------------
 # Session State
 # -----------------------------
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
+
 if "user" not in st.session_state:
     st.session_state["user"] = None
+
 if "role" not in st.session_state:
     st.session_state["role"] = None
+
 if "page" not in st.session_state:
     st.session_state["page"] = "dashboard"
+
 if "selected_appointment_id" not in st.session_state:
     st.session_state["selected_appointment_id"] = None
+
 if "restock_item_id" not in st.session_state:
     st.session_state["restock_item_id"] = None
+
 if "appointment_status_filter" not in st.session_state:
     st.session_state["appointment_status_filter"] = "All"
+
 if "customer_history_filter" not in st.session_state:
     st.session_state["customer_history_filter"] = "All"
+
 if "messages" not in st.session_state:
     st.session_state["messages"] = []
 
-# Adding the files
+
+# -----------------------------
+# Files
 # -----------------------------
 users_file = Path("users.json")
 appt_file = Path("appointments.json")
 inventory_file = Path("inventory.json")
 feedback_file = Path("feedback.json")
-
-# Loading the data
-# ------------------------------
-if users_file.exists():
-    with open(users_file, "r") as f:
-        users = json.load(f)
-else:
-    users = []
-    with open(users_file, "w") as f:
-        json.dump(users, f, indent=4)
-
-if appt_file.exists():
-    with open(appt_file, "r") as f:
-        appointments = json.load(f)
-else:
-    appointments = []
-    with open(appt_file, "w") as f:
-        json.dump(appointments, f, indent=4)
-
-if inventory_file.exists():
-    with open(inventory_file, "r") as f:
-        inventory = json.load(f)
-else:
-    inventory = []
-    with open(inventory_file, "w") as f:
-        json.dump(inventory, f, indent=4)
-
-if feedback_file.exists():
-    with open(feedback_file, "r") as f:
-        feedback_list = json.load(f)
-else:
-    feedback_list = []
-    with open(feedback_file, "w") as f:
-        json.dump(feedback_list, f, indent=4)
+services_file = Path("services.json")
 
 
-# Pricing and tools needed
 # -----------------------------
-service_prices = {
-    "Basic Manicure": 20,
-    "Gel Manicure": 35,
-    "Classic Pedicure": 30,
-    "Acrylic Full Set": 50,
-    "Nail Art Design": 15
-}
-
-service_inventory_map = {
-    "Basic Manicure": ["Cuticle Oil", "Cotton Pads"],
-    "Gel Manicure": ["Gel Polish", "Cuticle Oil", "Cotton Pads"],
-    "Classic Pedicure": ["Cuticle Oil", "Cotton Pads"],
-    "Acrylic Full Set": ["Acrylic Powder", "Nail Files", "Cotton Pads"],
-    "Nail Art Design": ["Nail Files", "Cotton Pads"]
-}
-
-# Rewards Program and the points
-reward_options = [
-    {"name": "10% Off Next Service", "points": 50},
-    {"name": "Free Nail Art Design", "points": 100},
-    {"name": "Free Basic Manicure", "points": 250},
-    {"name": "Free Gel Manicure", "points": 400}
+# Default Data
+# -----------------------------
+default_services = [
+    {"name": "Basic Manicure", "price": 20},
+    {"name": "Gel Manicure", "price": 35},
+    {"name": "Classic Pedicure", "price": 30},
+    {"name": "Acrylic Full Set", "price": 50},
+    {"name": "Nail Art Design", "price": 15}
 ]
 
-# Employees name for booking availability
-employee_names = ["Marissa", "Jackie", "Eesha Shahi"]
-
-# Timing of the salon and bookings
-all_times = [
-    "9:00 AM",
-    "10:00 AM",
-    "11:00 AM",
-    "12:00 PM",
-    "1:00 PM",
-    "2:00 PM",
-    "3:00 PM",
-    "4:00 PM",
-    "5:00 PM"
+default_inventory = [
+    {
+        "id": 1,
+        "item_name": "Cuticle Oil",
+        "category": "Care",
+        "quantity": 10,
+        "low_stock_limit": 3,
+        "supplier": "Salon Supply Co."
+    },
+    {
+        "id": 2,
+        "item_name": "Cotton Pads",
+        "category": "Supplies",
+        "quantity": 20,
+        "low_stock_limit": 5,
+        "supplier": "Beauty Wholesale"
+    },
+    {
+        "id": 3,
+        "item_name": "Gel Polish",
+        "category": "Polish",
+        "quantity": 10,
+        "low_stock_limit": 3,
+        "supplier": "Gel Pro Supply"
+    },
+    {
+        "id": 4,
+        "item_name": "Acrylic Powder",
+        "category": "Acrylic",
+        "quantity": 8,
+        "low_stock_limit": 2,
+        "supplier": "Nail Supply Hub"
+    },
+    {
+        "id": 5,
+        "item_name": "Nail Files",
+        "category": "Tools",
+        "quantity": 15,
+        "low_stock_limit": 4,
+        "supplier": "Salon Supply Co."
+    }
 ]
 
 
-# Save functions
+# -----------------------------
+# Load Data
+# -----------------------------
+def load_json_file(file_path, default_value):
+    if file_path.exists():
+        with open(file_path, "r") as f:
+            return json.load(f)
+    else:
+        with open(file_path, "w") as f:
+            json.dump(default_value, f, indent=4)
+        return default_value
+
+
+users = load_json_file(users_file, [])
+appointments = load_json_file(appt_file, [])
+inventory = load_json_file(inventory_file, default_inventory)
+feedback_list = load_json_file(feedback_file, [])
+services = load_json_file(services_file, default_services)
+
+
+# -----------------------------
+# Save Functions
 # -----------------------------
 def save_users():
     with open(users_file, "w") as f:
@@ -139,7 +150,58 @@ def save_feedback():
         json.dump(feedback_list, f, indent=4)
 
 
-# Refresh the logged-in user data because it may change
+def save_services():
+    with open(services_file, "w") as f:
+        json.dump(services, f, indent=4)
+
+
+# -----------------------------
+# Services and Pricing
+# -----------------------------
+def get_service_prices():
+    prices = {}
+
+    for service in services:
+        prices[service["name"]] = service["price"]
+
+    return prices
+
+
+service_prices = get_service_prices()
+
+service_inventory_map = {
+    "Basic Manicure": ["Cuticle Oil", "Cotton Pads"],
+    "Gel Manicure": ["Gel Polish", "Cuticle Oil", "Cotton Pads"],
+    "Classic Pedicure": ["Cuticle Oil", "Cotton Pads"],
+    "Acrylic Full Set": ["Acrylic Powder", "Nail Files", "Cotton Pads"],
+    "Nail Art Design": ["Nail Files", "Cotton Pads"]
+}
+
+reward_options = [
+    {"name": "10% Off Next Service", "points": 50},
+    {"name": "Free Nail Art Design", "points": 100},
+    {"name": "Free Basic Manicure", "points": 250},
+    {"name": "Free Gel Manicure", "points": 400}
+]
+
+employee_names = ["Marissa", "Jackie", "Eesha Shahi"]
+
+all_times = [
+    "9:00 AM",
+    "10:00 AM",
+    "11:00 AM",
+    "12:00 PM",
+    "1:00 PM",
+    "2:00 PM",
+    "3:00 PM",
+    "4:00 PM",
+    "5:00 PM"
+]
+
+
+# -----------------------------
+# Helper Functions
+# -----------------------------
 def refresh_logged_in_user():
     if st.session_state["user"] is not None:
         for user in users:
@@ -148,24 +210,26 @@ def refresh_logged_in_user():
                 break
 
 
-# Making sure each of the rewards have fields and they work
 def ensure_user_reward_fields(user):
     updated = False
+
     if "reward_points" not in user:
         user["reward_points"] = 0
         updated = True
+
     if "reward_history" not in user:
         user["reward_history"] = []
         updated = True
+
     return updated
 
 
-# Finding the next appointment id
 def get_next_appointment_id():
     if len(appointments) == 0:
         return 1
 
     max_id = 0
+
     for appt in appointments:
         if appt["id"] > max_id:
             max_id = appt["id"]
@@ -173,12 +237,12 @@ def get_next_appointment_id():
     return max_id + 1
 
 
-# Finding the next feedback id
 def get_next_feedback_id():
     if len(feedback_list) == 0:
         return 1
 
     max_id = 0
+
     for feedback in feedback_list:
         if feedback["id"] > max_id:
             max_id = feedback["id"]
@@ -186,27 +250,24 @@ def get_next_feedback_id():
     return max_id + 1
 
 
-# Calculate the 20% tip
 def calculate_tip(price):
     return round(price * 0.20, 2)
 
 
-# Calculate the total charge including the 20% tip
 def calculate_total_charge(price):
     return round(price + calculate_tip(price), 2)
 
 
-# Find one inventory item by its item name
 def get_item_by_name(item_name):
     for item in inventory:
         if item["item_name"] == item_name:
             return item
+
     return None
 
 
-# Check whether all needed inventory exists for a service
 def has_inventory_for_service(service_name):
-    required_items = service_inventory_map[service_name]
+    required_items = service_inventory_map.get(service_name, [])
 
     for required_item in required_items:
         item = get_item_by_name(required_item)
@@ -217,9 +278,8 @@ def has_inventory_for_service(service_name):
     return True
 
 
-# Add or subtract inventory when appointments are booked or canceled
 def update_inventory_for_service(service_name, action):
-    required_items = service_inventory_map[service_name]
+    required_items = service_inventory_map.get(service_name, [])
 
     if action == "subtract":
         for required_item in required_items:
@@ -246,7 +306,6 @@ def update_inventory_for_service(service_name, action):
     return False
 
 
-# Get only the appointments that belong to the logged-in customer
 def get_user_appointments():
     user_appts = []
 
@@ -257,7 +316,6 @@ def get_user_appointments():
     return user_appts
 
 
-# Get only the appointments assigned to the logged-in employee
 def get_employee_appointments():
     employee_appts = []
 
@@ -268,17 +326,15 @@ def get_employee_appointments():
     return employee_appts
 
 
-# Check if an appointment time is already in the past
 def is_past_appointment(appt):
     appointment_datetime = datetime.strptime(
         f"{appt['date']} {appt['time']}",
-        "%Y-%m-%d %I:%M %p"  # used ai to help run this line of code
+        "%Y-%m-%d %I:%M %p"
     )
 
     return appointment_datetime < datetime.now()
 
 
-# Add reward points to a customer after a completed appointment
 def add_reward_points_to_customer(customer_email, points_to_add):
     for user in users:
         if user["email"] == customer_email:
@@ -290,7 +346,6 @@ def add_reward_points_to_customer(customer_email, points_to_add):
     refresh_logged_in_user()
 
 
-# Redeem a reward if the customer has enough points
 def redeem_reward_for_customer(user_id, reward_name, reward_cost):
     for user in users:
         if user["id"] == user_id:
@@ -314,7 +369,6 @@ def redeem_reward_for_customer(user_id, reward_name, reward_cost):
     return False
 
 
-# Count how many inventory items are low on stock
 def get_low_stock_count():
     count = 0
 
@@ -325,8 +379,6 @@ def get_low_stock_count():
     return count
 
 
-# Revenue helpers
-# -----------------------------
 def get_completed_appointments():
     completed = []
 
@@ -364,13 +416,14 @@ def get_employee_total_charge_with_tips():
 updated_users = False
 
 for user in users:
-    if ensure_user_reward_fields(user):  # USED AI to help us with this part because we were getting errors
+    if ensure_user_reward_fields(user):
         updated_users = True
 
 if updated_users:
     save_users()
 
 
+# -----------------------------
 # Sidebar Navigation
 # -----------------------------
 if st.session_state["logged_in"]:
@@ -428,6 +481,10 @@ if st.session_state["logged_in"]:
                 st.session_state["page"] = "low_stock"
                 st.rerun()
 
+            if st.button("Manage Services", key="manage_services_btn", type="primary", use_container_width=True):
+                st.session_state["page"] = "manage_services"
+                st.rerun()
+
             if st.button("Revenue Tracker", key="revenue_tracker_btn", type="primary", use_container_width=True):
                 st.session_state["page"] = "revenue_tracker"
                 st.rerun()
@@ -449,7 +506,8 @@ if st.session_state["logged_in"]:
             st.rerun()
 
 
-# Authentication for log in
+# -----------------------------
+# Authentication
 # -----------------------------
 if not st.session_state["logged_in"]:
     st.title("Polished to Perfection")
@@ -490,20 +548,19 @@ if not st.session_state["logged_in"]:
                     st.error("An account with that email already exists.")
 
                 else:
-                    with st.spinner("Recording..."):
-                        new_user = {
-                            "id": str(uuid.uuid4()),
-                            "email": reg_email,
-                            "full_name": reg_name,
-                            "password": reg_password,
-                            "role": reg_role,
-                            "registered_at": str(datetime.now()),
-                            "reward_points": 0,
-                            "reward_history": []
-                        }
+                    new_user = {
+                        "id": str(uuid.uuid4()),
+                        "email": reg_email,
+                        "full_name": reg_name,
+                        "password": reg_password,
+                        "role": reg_role,
+                        "registered_at": str(datetime.now()),
+                        "reward_points": 0,
+                        "reward_history": []
+                    }
 
-                        users.append(new_user)
-                        save_users()
+                    users.append(new_user)
+                    save_users()
 
                     st.success("Account created successfully. You can now log in.")
 
@@ -522,12 +579,11 @@ if not st.session_state["logged_in"]:
                     break
 
             if user_found:
-                with st.spinner("Recording..."):
-                    st.session_state["logged_in"] = True
-                    st.session_state["user"] = user_found
-                    st.session_state["role"] = user_found["role"]
-                    st.session_state["page"] = "dashboard"
-                    st.session_state["messages"] = []
+                st.session_state["logged_in"] = True
+                st.session_state["user"] = user_found
+                st.session_state["role"] = user_found["role"]
+                st.session_state["page"] = "dashboard"
+                st.session_state["messages"] = []
 
                 st.success("Login successful!")
                 st.rerun()
@@ -536,9 +592,13 @@ if not st.session_state["logged_in"]:
                 st.error("Invalid credentials.")
 
 
+# -----------------------------
 # Logged-In Pages
 # -----------------------------
 else:
+    # -----------------------------
+    # Customer Pages
+    # -----------------------------
     if st.session_state["role"] == "Customer":
         user_appts = get_user_appointments()
 
@@ -635,7 +695,7 @@ else:
                         st.session_state["page"] = "feedback_form"
                         st.rerun()
 
-        # Booking page
+        # Book Appointment
         elif st.session_state["page"] == "book_appointment":
             st.title("Book Appointment")
             st.caption("Choose your service, nail tech, date, and time.")
@@ -646,55 +706,55 @@ else:
 
             with col2:
                 with st.container(border=True):
-                    nail_service = st.selectbox("Service", list(service_prices.keys()), key="service_select")
-                    employee = st.selectbox("Employee Name", employee_names, key="employee_select")
-                    selected_date = st.date_input("Date", key="date_select")
-
-                    booked_times = []
-
-                    for appt in appointments:
-                        if (
-                            appt["employee"] == employee
-                            and appt["date"] == str(selected_date)
-                            and appt.get("status") != "Canceled"
-                        ):
-                            booked_times.append(appt["time"])
-
-                    available_times = []
-
-                    for appt_time in all_times:
-                        if appt_time not in booked_times:
-                            available_times.append(appt_time)
-
-                    if len(available_times) > 0:
-                        selected_time = st.selectbox("Time", available_times, key="time_select")
-
+                    if len(service_prices) == 0:
+                        st.error("There are no services available right now.")
                     else:
-                        selected_time = None
-                        st.warning("No available times for this employee on this date.")
+                        nail_service = st.selectbox("Service", list(service_prices.keys()), key="service_select")
+                        employee = st.selectbox("Employee Name", employee_names, key="employee_select")
+                        selected_date = st.date_input("Date", key="date_select")
 
-                    basic_price = service_prices[nail_service]
-                    tip_amount = calculate_tip(basic_price)
-                    total_charge = calculate_total_charge(basic_price)
+                        booked_times = []
 
-                    st.success(f"Basic Charge: ${basic_price}")
-                    st.info(f"20% Tip: ${tip_amount}")
-                    st.warning(f"Total Charge: ${total_charge}")
+                        for appt in appointments:
+                            if (
+                                appt["employee"] == employee
+                                and appt["date"] == str(selected_date)
+                                and appt.get("status") != "Canceled"
+                            ):
+                                booked_times.append(appt["time"])
 
-                    if st.button("Book Appointment", key="book_appointment_submit_btn", type="primary", use_container_width=True):
-                        if selected_date < date.today():
-                            st.error("You cannot book an appointment in the past.")
+                        available_times = []
 
-                        elif not selected_time:
-                            st.error("Please choose a date with an available time.")
+                        for appt_time in all_times:
+                            if appt_time not in booked_times:
+                                available_times.append(appt_time)
 
-                        elif not has_inventory_for_service(nail_service):
-                            st.error("Not enough inventory available to book this appointment.")
+                        if len(available_times) > 0:
+                            selected_time = st.selectbox("Time", available_times, key="time_select")
 
                         else:
-                            subtract_success = False
+                            selected_time = None
+                            st.warning("No available times for this employee on this date.")
 
-                            with st.spinner("Recording..."):
+                        basic_price = service_prices[nail_service]
+                        tip_amount = calculate_tip(basic_price)
+                        total_charge = calculate_total_charge(basic_price)
+
+                        st.success(f"Basic Charge: ${basic_price}")
+                        st.info(f"20% Tip: ${tip_amount}")
+                        st.warning(f"Total Charge: ${total_charge}")
+
+                        if st.button("Book Appointment", key="book_appointment_submit_btn", type="primary", use_container_width=True):
+                            if selected_date < date.today():
+                                st.error("You cannot book an appointment in the past.")
+
+                            elif not selected_time:
+                                st.error("Please choose a date with an available time.")
+
+                            elif not has_inventory_for_service(nail_service):
+                                st.error("Not enough inventory available to book this appointment.")
+
+                            else:
                                 new_appt = {
                                     "id": get_next_appointment_id(),
                                     "service": nail_service,
@@ -718,15 +778,14 @@ else:
                                     save_appointments()
                                     save_inventory()
 
-                            if not subtract_success:
-                                st.error("Inventory could not be updated for this appointment.")
+                                    st.success("Appointment booked successfully.")
+                                    st.session_state["page"] = "my_appointments"
+                                    st.rerun()
 
-                            else:
-                                st.success("Appointment booked successfully.")
-                                st.session_state["page"] = "my_appointments"
-                                st.rerun()
+                                else:
+                                    st.error("Inventory could not be updated for this appointment.")
 
-        # Appointment Page
+        # My Appointments
         elif st.session_state["page"] == "my_appointments":
             st.title("My Appointments")
             st.caption("View upcoming, old, and canceled appointments.")
@@ -823,16 +882,15 @@ else:
                                     type="primary",
                                     use_container_width=True
                                 ):
-                                    with st.spinner("Recording..."):
-                                        for appt in appointments:
-                                            if appt["id"] == selected_appt["id"]:
-                                                appt["status"] = "Canceled"
-                                                appt["canceled_at"] = str(datetime.now())
-                                                update_inventory_for_service(appt["service"], "add")
-                                                break
+                                    for appt in appointments:
+                                        if appt["id"] == selected_appt["id"]:
+                                            appt["status"] = "Canceled"
+                                            appt["canceled_at"] = str(datetime.now())
+                                            update_inventory_for_service(appt["service"], "add")
+                                            break
 
-                                        save_appointments()
-                                        save_inventory()
+                                    save_appointments()
+                                    save_inventory()
 
                                     st.success("Appointment canceled successfully.")
                                     st.session_state["selected_appointment_id"] = None
@@ -911,7 +969,7 @@ else:
                 else:
                     st.info("No canceled appointments found.")
 
-        # Rewards Page
+        # Rewards
         elif st.session_state["page"] == "rewards":
             st.title("Rewards Program")
             st.caption("Redeem your points for salon rewards.")
@@ -942,14 +1000,11 @@ else:
                                         type="primary",
                                         use_container_width=True
                                     ):
-                                        redeemed = False
-
-                                        with st.spinner("Recording..."):
-                                            redeemed = redeem_reward_for_customer(
-                                                st.session_state["user"]["id"],
-                                                reward["name"],
-                                                reward["points"]
-                                            )
+                                        redeemed = redeem_reward_for_customer(
+                                            st.session_state["user"]["id"],
+                                            reward["name"],
+                                            reward["points"]
+                                        )
 
                                         if redeemed:
                                             st.success(f"{reward['name']} redeemed successfully.")
@@ -976,7 +1031,7 @@ else:
                         else:
                             st.info("No rewards redeemed yet.")
 
-        # Feedback Form Page
+        # Feedback Form
         elif st.session_state["page"] == "feedback_form":
             st.title("Feedback Form")
             st.caption("Pick an appointment and submit feedback, complaints, or concerns about that visit.")
@@ -1064,7 +1119,10 @@ else:
             if len(user_feedback) > 0:
                 for feedback in user_feedback:
                     with st.container(border=True):
-                        st.markdown(f"**Appointment:** {feedback.get('related_service', 'N/A')} | {feedback.get('appointment_date', 'N/A')} at {feedback.get('appointment_time', 'N/A')}")
+                        st.markdown(
+                            f"**Appointment:** {feedback.get('related_service', 'N/A')} | "
+                            f"{feedback.get('appointment_date', 'N/A')} at {feedback.get('appointment_time', 'N/A')}"
+                        )
                         st.markdown(f"**Employee:** {feedback.get('appointment_employee', 'N/A')}")
                         st.markdown(f"**Type:** {feedback['feedback_type']}")
                         st.markdown(f"**Message:** {feedback['message']}")
@@ -1119,7 +1177,10 @@ else:
                     response = "To cancel an appointment, go to the My Appointments section and select your appointment in the Upcoming tab."
 
                 elif "service" in prompt_lower:
-                    response = "Available services are Basic Manicure, Gel Manicure, Classic Pedicure, Acrylic Full Set, and Nail Art Design."
+                    response = "Available services are:\n"
+
+                    for service in services:
+                        response += f"- {service['name']}: ${service['price']}\n"
 
                 elif "status" in prompt_lower:
                     if user_appts_for_chat:
@@ -1149,6 +1210,9 @@ else:
                 st.session_state["messages"].append({"role": "assistant", "content": response})
                 st.rerun()
 
+    # -----------------------------
+    # Employee Pages
+    # -----------------------------
     elif st.session_state["role"] == "Employee":
         employee_appts = get_employee_appointments()
 
@@ -1170,6 +1234,7 @@ else:
         employee_total_charge = get_employee_total_charge_with_tips()
 
         pending_feedback_count = 0
+
         for feedback in feedback_list:
             if feedback.get("status") == "Pending":
                 pending_feedback_count += 1
@@ -1359,29 +1424,36 @@ else:
                         )
 
                         if st.button("Record Decision", key=f"save_status_{selected_appt['id']}", type="primary", use_container_width=True):
-                            with st.spinner("Recording the decision..."):
-                                for appt in appointments:
-                                    if appt["id"] == selected_appt["id"]:
-                                        old_status = appt.get("status", "Scheduled")
+                            for appt in appointments:
+                                if appt["id"] == selected_appt["id"]:
+                                    old_status = appt.get("status", "Scheduled")
 
-                                        if old_status != "Canceled" and selected_status == "Canceled":
-                                            update_inventory_for_service(appt["service"], "add")
-                                            appt["canceled_at"] = str(datetime.now())
+                                    if old_status != "Canceled" and selected_status == "Canceled":
+                                        update_inventory_for_service(appt["service"], "add")
+                                        appt["canceled_at"] = str(datetime.now())
 
-                                        if old_status != "Completed" and selected_status == "Completed":
-                                            add_reward_points_to_customer(appt["client_email"], 10)
+                                    if old_status == "Canceled" and selected_status == "Scheduled":
+                                        inventory_success = update_inventory_for_service(appt["service"], "subtract")
 
-                                        if "tip_amount" not in appt:
-                                            appt["tip_amount"] = calculate_tip(appt.get("price", 0))
+                                        if not inventory_success:
+                                            st.error("Not enough inventory to move this appointment back to Scheduled.")
+                                            st.stop()
 
-                                        if "total_charge" not in appt:
-                                            appt["total_charge"] = calculate_total_charge(appt.get("price", 0))
+                                    if selected_status == "Completed" and not appt.get("points_awarded", False):
+                                        add_reward_points_to_customer(appt["client_email"], 10)
+                                        appt["points_awarded"] = True
 
-                                        appt["status"] = selected_status
-                                        break
+                                    if "tip_amount" not in appt:
+                                        appt["tip_amount"] = calculate_tip(appt.get("price", 0))
 
-                                save_appointments()
-                                save_inventory()
+                                    if "total_charge" not in appt:
+                                        appt["total_charge"] = calculate_total_charge(appt.get("price", 0))
+
+                                    appt["status"] = selected_status
+                                    break
+
+                            save_appointments()
+                            save_inventory()
 
                             st.success("Information recorded.")
                             st.rerun()
@@ -1389,7 +1461,7 @@ else:
                     else:
                         st.info("Select an appointment to view details.")
 
-        # Inventory Page
+        # Inventory
         elif st.session_state["page"] == "inventory":
             st.title("Salon Inventory")
             st.caption("View current stock and restock items.")
@@ -1450,9 +1522,8 @@ else:
                         )
 
                         if st.button("Save Restock", key=f"save_restock_{selected_item['id']}", type="primary", use_container_width=True):
-                            with st.spinner("Recording..."):
-                                selected_item["quantity"] += restock_amount
-                                save_inventory()
+                            selected_item["quantity"] += restock_amount
+                            save_inventory()
 
                             st.success("Inventory updated successfully.")
                             st.session_state["restock_item_id"] = None
@@ -1461,7 +1532,7 @@ else:
                     else:
                         st.info("Select an inventory item to restock.")
 
-        # Low Stock Page
+        # Low Stock
         elif st.session_state["page"] == "low_stock":
             st.title("Low Stock Alerts")
             st.caption("See which salon items need to be restocked soon.")
@@ -1486,7 +1557,137 @@ else:
             else:
                 st.success("There are no low stock items right now.")
 
-        # Revenue Tracker Page
+        # Manage Services
+        elif st.session_state["page"] == "manage_services":
+            st.title("Manage Services")
+            st.caption("Add new services, remove services, and update service prices.")
+
+            st.divider()
+
+            add_tab, update_tab, remove_tab = st.tabs(["Add Service", "Change Price", "Remove Service"])
+
+            with add_tab:
+                st.subheader("Add a New Service")
+
+                new_service_name = st.text_input("Service Name", key="new_service_name").strip()
+                new_service_price = st.number_input(
+                    "Service Price",
+                    min_value=1.0,
+                    step=1.0,
+                    key="new_service_price"
+                )
+
+                if st.button("Add Service", key="add_service_btn", type="primary", use_container_width=True):
+                    service_exists = False
+
+                    for service in services:
+                        if service["name"].lower() == new_service_name.lower():
+                            service_exists = True
+                            break
+
+                    if not new_service_name:
+                        st.error("Please enter a service name.")
+
+                    elif service_exists:
+                        st.error("This service already exists.")
+
+                    else:
+                        new_service = {
+                            "name": new_service_name,
+                            "price": new_service_price
+                        }
+
+                        services.append(new_service)
+                        save_services()
+
+                        st.success("Service added successfully.")
+                        st.rerun()
+
+            with update_tab:
+                st.subheader("Change Service Price")
+
+                if len(services) > 0:
+                    service_to_update = st.selectbox(
+                        "Choose Service",
+                        services,
+                        format_func=lambda x: f"{x['name']} - ${x['price']}",
+                        key="service_to_update"
+                    )
+
+                    updated_price = st.number_input(
+                        "New Price",
+                        min_value=1.0,
+                        step=1.0,
+                        value=float(service_to_update["price"]),
+                        key="updated_service_price"
+                    )
+
+                    if st.button("Update Price", key="update_service_price_btn", type="primary", use_container_width=True):
+                        for service in services:
+                            if service["name"] == service_to_update["name"]:
+                                service["price"] = updated_price
+                                break
+
+                        save_services()
+
+                        st.success("Service price updated successfully.")
+                        st.rerun()
+
+                else:
+                    st.info("No services available to update.")
+
+            with remove_tab:
+                st.subheader("Remove a Service")
+
+                if len(services) > 0:
+                    service_to_remove = st.selectbox(
+                        "Choose Service to Remove",
+                        services,
+                        format_func=lambda x: f"{x['name']} - ${x['price']}",
+                        key="service_to_remove"
+                    )
+
+                    service_has_existing_appointments = False
+
+                    for appt in appointments:
+                        if appt.get("service") == service_to_remove["name"]:
+                            service_has_existing_appointments = True
+                            break
+
+                    st.warning("Removing a service will stop customers from booking it in the future.")
+
+                    if service_has_existing_appointments:
+                        st.info("This service already has appointment history, but removing it will not delete old appointments.")
+
+                    if st.button("Remove Service", key="remove_service_btn", type="primary", use_container_width=True):
+                        services.remove(service_to_remove)
+                        save_services()
+
+                        st.success("Service removed successfully.")
+                        st.rerun()
+
+                else:
+                    st.info("No services available to remove.")
+
+            st.divider()
+
+            st.markdown("### Current Services")
+
+            if len(services) > 0:
+                services_table = []
+
+                for service in services:
+                    services_table.append({
+                        "Service": service["name"],
+                        "Price": service["price"]
+                    })
+
+                st.dataframe(services_table, use_container_width=True)
+
+            else:
+                st.info("No services have been added yet.")
+
+        # Revenue Tracker
         elif st.session_state["page"] == "revenue_tracker":
             st.title("Revenue Tracker")
             st.caption("Track basic service revenue, tips, and total revenue from completed appointments.")
@@ -1593,10 +1794,11 @@ else:
 
             if len(revenue_table) > 0:
                 st.dataframe(revenue_table, use_container_width=True)
+
             else:
                 st.info("No completed appointment revenue found for these filters.")
 
-        # Review Feedback Page
+        # Review Feedback
         elif st.session_state["page"] == "review_feedback":
             st.title("Review Feedback")
             st.caption("Review customer feedback and approve or reject submissions.")
@@ -1626,7 +1828,10 @@ else:
                         st.markdown(f"### {feedback['feedback_type']}")
                         st.markdown(f"**Customer:** {feedback['customer_name']}")
                         st.markdown(f"**Email:** {feedback['customer_email']}")
-                        st.markdown(f"**Appointment:** {feedback.get('related_service', 'N/A')} | {feedback.get('appointment_date', 'N/A')} at {feedback.get('appointment_time', 'N/A')}")
+                        st.markdown(
+                            f"**Appointment:** {feedback.get('related_service', 'N/A')} | "
+                            f"{feedback.get('appointment_date', 'N/A')} at {feedback.get('appointment_time', 'N/A')}"
+                        )
                         st.markdown(f"**Appointment Employee:** {feedback.get('appointment_employee', 'N/A')}")
                         st.markdown(f"**Message:** {feedback['message']}")
                         st.markdown(f"**Status:** {feedback['status']}")
@@ -1646,6 +1851,7 @@ else:
                                     feedback["reviewed_by"] = st.session_state["user"]["full_name"]
                                     feedback["reviewed_at"] = str(datetime.now())
                                     save_feedback()
+
                                     st.success("Feedback approved.")
                                     st.rerun()
 
@@ -1659,6 +1865,7 @@ else:
                                     feedback["reviewed_by"] = st.session_state["user"]["full_name"]
                                     feedback["reviewed_at"] = str(datetime.now())
                                     save_feedback()
+
                                     st.warning("Feedback rejected.")
                                     st.rerun()
 
