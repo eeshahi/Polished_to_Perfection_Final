@@ -48,5 +48,15 @@
         "registered_at": "2026-05-10 22:31:12.908149",
         "reward_points": 0,
         "reward_history": []
+    },
+    {
+        "id": "ef31f738-8e78-47d1-b7b7-62a30803067d",
+        "email": "mamalosh@udel.edu",
+        "full_name": "Marissa",
+        "password": "Mlosh1106!",
+        "role": "Customer",
+        "registered_at": "2026-05-11 21:00:18.434969",
+        "reward_points": 0,
+        "reward_history": []
     }
 ]
